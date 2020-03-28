@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
-import argparse
-import json
-import math
 import os
-import random
 import shutil
 
 from sklearn.model_selection import train_test_split

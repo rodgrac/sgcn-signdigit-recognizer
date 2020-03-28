@@ -1,16 +1,14 @@
-from model.stgcn import Model
-import numpy as np
-import sys
 import os
+
+import cv2
+import numpy as np
 import tensorflow as tf
 
+from data_gen.preprocessor.skeleton_gen import detect_keypoints
+from data_gen.preprocessor.skeleton_gen import init_openpose
 from hand_utils import detector_utils
 from hand_utils import draw_util
-from data_gen.skeleton_gen import detect_keypoints
-from data_gen.skeleton_gen import init_openpose
-import cv2
-import argparse
-import datetime
+from model.stgcn import Model
 
 PATH = "/home/rodneygracian/Desktop/Rod/research/projects/asl/GCN/asl_digits_recog/dataset/sldd/Dataset/5"
 

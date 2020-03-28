@@ -1,17 +1,14 @@
-from model.stgcn import Model
+import cv2
 import numpy as np
-import sys
-import os
 import tensorflow as tf
 
+from data_gen.preprocessor.skeleton_gen import detect_keypoints
+from data_gen.preprocessor.skeleton_gen import init_openpose
 from hand_utils import detector_utils
 from hand_utils import draw_util
-from data_gen.skeleton_gen import detect_keypoints
-from data_gen.skeleton_gen import init_openpose
-import cv2
-import argparse
-import datetime
+from model.stgcn import Model
 
+save_video = False
 
 @tf.function
 def test_step(features):
@@ -52,14 +49,21 @@ def init_Model(num_classes):
 
 if __name__ == '__main__':
     score_thresh = 0.5
-    video_source = 0
+    video_source = 2
 
     cap = cv2.VideoCapture(video_source)
     # cap.set(cv2.CAP_PROP_FRAME_WIDTH, args.width)
     # cap.set(cv2.CAP_PROP_FRAME_HEIGHT, args.height)
     # im_width, im_height = (cap.get(3), cap.get(4))
+    fps = cap.get(cv2.CAP_PROP_FPS)
     im_width, im_height = (640, 480)
-    num_frames = 0
+
+    # Define the codec and create VideoWriter object
+    # fourcc = cv2.VideoWriter_fourcc(*'XVID')
+    # out = cv2.VideoWriter('signdigit_demo.avi', fourcc, fps, (im_width, im_height))
+    fourcc = cv2.VideoWriter_fourcc(*'MP4V')
+    recorder = cv2.VideoWriter('gcn_signdigit_demo.mp4', fourcc, fps, (640, 480))
+
     handbox = []
 
     # detection_graph, sess = detection_rectangles.load_inference_graph()
@@ -120,8 +124,19 @@ if __name__ == '__main__':
         # fps = num_frames / elapsed_time
         draw_util.draw_text_on_image("Signed digit is : " + str(int(pred_class)), image_np)
         image_np = cv2.cvtColor(image_np, cv2.COLOR_RGB2BGR)
+
+        if save_video:
+            recorder.write(image_np)
+
         cv2.imshow('Hand Pose', image_np)
 
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            cv2.destroyAllWindows()
+        key = cv2.waitKey(1)
+        if key & 0xFF == ord('s'):
+            print("Saving Video")
+            save_video = not save_video
+        if key & 0xFF == ord('q'):
             break
+
+    cap.release()
+    recorder.release()
+    cv2.destroyAllWindows()

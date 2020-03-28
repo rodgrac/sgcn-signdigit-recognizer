@@ -1,0 +1,27 @@
+home_dir:
+dataset_dir:
+
+phases:
+  skeleton,
+  split,
+  normalize,
+  tfrecord
+
+skeleton:
+  input_dir: dataset_dir
+  output_dir: ./skeleton
+  openpose:
+
+split:
+  input_dir: ./skeleton
+  output_dir: ./split
+  test: 20
+  seed: 2
+
+normalize:
+  input_dir: ./split
+  output_dir: ./normalized
+
+tfrecord:
+  input_dir: ./normalized
+  output_dir: ./tfrecord

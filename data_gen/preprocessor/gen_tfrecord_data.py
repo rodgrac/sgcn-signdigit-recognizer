@@ -1,10 +1,10 @@
 import os
 import pickle
-import argparse
-import numpy as np
-from tqdm import tqdm
-import tensorflow as tf
 from pathlib import Path
+
+import numpy as np
+import tensorflow as tf
+from tqdm import tqdm
 
 DATA_PATH = "/home/rodneygracian/Desktop/Rod/research/projects/asl/GCN/asl_digits_recog/src/data/normalized"
 OUTPUT_PATH = "/home/rodneygracian/Desktop/Rod/research/projects/asl/GCN/asl_digits_recog/src/data/tfrecord"

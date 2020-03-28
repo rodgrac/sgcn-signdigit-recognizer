@@ -1,17 +1,15 @@
-from model.stgcn import Model
-import numpy as np
-import cv2
-import tensorflow as tf
 import os
-import logging
+
+import tensorflow as tf
+from tensorflow.compat.v1 import ConfigProto
+from tensorflow.compat.v1 import InteractiveSession
 from tqdm import tqdm
+
+from model.stgcn import Model
 
 # os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 # logging.getLogger("tensorflow").setLevel(logging.CRITICAL)
 # logging.getLogger("tensorflow_hub").setLevel(logging.CRITICAL)
-
-from tensorflow.compat.v1 import ConfigProto
-from tensorflow.compat.v1 import InteractiveSession
 
 config = ConfigProto()
 config.gpu_options.per_process_gpu_memory_fraction = 0.4
@@ -67,13 +65,13 @@ def train_step(features, labels):
 if __name__ == '__main__':
     base_lr = 0.1
     num_classes = 10
-    epochs = 100
+    epochs = 200
     checkpoint_path = 'checkpoints'
     log_dir = 'logs'
     train_data_path = 'data/tfrecord'
     test_data_path = 'data/tfrecord'
     save_freq = 10
-    steps = [30, 70]
+    steps = [50, 100]
     batch_size = 32
     gpus = None
     strategy = tf.distribute.MirroredStrategy(gpus)

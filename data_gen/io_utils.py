@@ -1,6 +1,9 @@
+import json
 import os
 import shutil
-import json
+import sys
+import time
+import traceback
 
 
 def progress_bar(current, total):
@@ -18,6 +21,17 @@ def ensure_dir_exists(dir):
 
 def create_dir(dir):
     os.makedirs(dir)
+
+
+def import_class(import_str):
+    mod_str, _sep, class_str = import_str.rpartition('.')
+    __import__(mod_str)
+    try:
+        return getattr(sys.modules[mod_str], class_str)
+    except AttributeError:
+        raise ImportError('Class %s cannot be found (%s)' %
+                          (class_str,
+                           traceback.format_exception(*sys.exc_info())))
 
 
 def remove_dir(dir):
@@ -52,3 +66,18 @@ def create_command_line(command, args):
     command_line += ' '.join(['{} {}'.format(k, v)
                               for k, v in args.items()])
     return command_line
+
+
+def str2dict(v):
+    return eval('dict({})'.format(v))
+
+
+def print_log(str, print_time=True):
+    if print_time:
+        str = time.strftime("[%m.%d.%y|%X] ", time.localtime()) + str
+
+    if print_to_screen:
+        print(str)
+    if save_log:
+        with open('{}/log.txt'.format(work_dir), 'a') as f:
+            print(str, file=f)
