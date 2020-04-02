@@ -5,24 +5,24 @@ import cv2
 import numpy as np
 from openpose import pyopenpose as op
 
-from data_gen import io_utils
-from data_gen.preproc_data import Data_Preproc
+from .preprocessor import Preprocessor
 
 
-class Skeleton_Generator(Data_Preproc):
+class Skeleton_Generator(Preprocessor):
     def __init__(self, argv=None):
         super().__init__('skeleton', argv)
+        self.input_dir = self.dataset_dir
         self.openpose_path = self.arg.skeleton['openpose']
         self.opWrap = self.init_openpose()
 
     def start(self):
         label_map_path = '{}/label.json'.format(self.output_dir)
-        print("Source directory: '{}'".format(self.input_dir))
-        print("Estimating poses to '{}'...".format(self.output_dir))
+        self.print_log("Source directory: '{}'".format(self.input_dir))
+        self.print_log("Estimating poses to '{}'...".format(self.output_dir))
 
         self.process_frames(self.input_dir, self.output_dir, label_map_path, self.opWrap)
 
-        print("Estimation done")
+        self.print_log("Estimation done")
 
     def init_openpose(self):
         params = dict()
@@ -41,7 +41,7 @@ class Skeleton_Generator(Data_Preproc):
             opWrapper.start()
             return opWrapper
         except Exception as e:
-            # print(e)
+            # self.print_log(e)
             sys.exit(-1)
 
     def process_frames(self, input_dir, output_dir, label_path, opWrapper):
@@ -50,7 +50,7 @@ class Skeleton_Generator(Data_Preproc):
             subdir_path = os.path.join(input_dir, subdir)
             num_files = len(os.listdir(subdir_path))
             for filename in os.listdir(subdir_path):
-                print("* {} [{} / {}] \t{} ...".format(subdir, len(label_map) + 1, num_files * 10, filename))
+                self.print_log("* {} [{} / {}] \t{} ...".format(subdir, len(label_map) + 1, num_files * 10, filename))
                 img = cv2.imread(os.path.join(subdir_path, filename))
                 # img = cv2.resize(img, (368, 368), interpolation=cv2.INTER_CUBIC)
                 img = cv2.flip(img, 1)
@@ -63,7 +63,7 @@ class Skeleton_Generator(Data_Preproc):
 
                 output_sequence_path = '{}/{}.json'.format(output_dir, os.path.splitext(filename)[0])
                 frame_info = self.json_pack(im_width, im_height, keypoints, label=subdir, label_index=int(subdir))
-                io_utils.save_json(frame_info, output_sequence_path)
+                self.save_json(frame_info, output_sequence_path)
 
                 label_info = dict()
                 label_info['has_skeleton'] = len(frame_info['data']) > 0
@@ -72,7 +72,7 @@ class Skeleton_Generator(Data_Preproc):
                 label_map[os.path.splitext(filename)[0]] = label_info
 
                 # save label map:
-                io_utils.save_json(label_map, label_path)
+                self.save_json(label_map, label_path)
 
         return label_map
 
@@ -138,5 +138,5 @@ class Skeleton_Generator(Data_Preproc):
         label_map = dict()
 
         if os.path.isfile(label_map_path):
-            label_map = io_utils.read_json(label_map_path)
+            label_map = self.read_json(label_map_path)
         return label_map

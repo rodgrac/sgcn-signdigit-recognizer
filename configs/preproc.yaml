@@ -1,5 +1,5 @@
-home_dir:
-dataset_dir:
+home_dir: /home/rodneygracian/Desktop/Rod/research/projects/asl/GCN/asl_digits_recog/src/data
+dataset_dir: /home/rodneygracian/Desktop/Rod/research/projects/asl/GCN/asl_digits_recog/dataset/sldd/Dataset
 
 phases:
   skeleton,
@@ -10,7 +10,7 @@ phases:
 skeleton:
   input_dir: dataset_dir
   output_dir: ./skeleton
-  openpose:
+  openpose: /home/rodneygracian/Desktop/Rod/research/projects/asl/GCN/openpose
 
 split:
   input_dir: ./skeleton

@@ -1,12 +1,10 @@
 # sys
-import os
-import sys
-import numpy as np
-import random
-import pickle
 import json
+import os
 
-import tools
+import numpy as np
+
+from data_gen import tools
 
 
 class Feeder_kinetics():

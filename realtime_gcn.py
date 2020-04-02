@@ -66,7 +66,6 @@ if __name__ == '__main__':
 
     handbox = []
 
-    # detection_graph, sess = detection_rectangles.load_inference_graph()
     detection_graph, sess = detector_utils.load_inference_graph()
 
     opWrapper = init_openpose()
