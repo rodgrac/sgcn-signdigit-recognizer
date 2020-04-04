@@ -1,7 +1,7 @@
 import argparse
 import sys
 
-from data_gen.io_utils import import_class
+from utils.io_utils import import_class
 
 if __name__ == '__main__':
 
@@ -9,7 +9,7 @@ if __name__ == '__main__':
 
     processors = dict()
     processors['preprocessing'] = import_class('data_gen.preproc_data.Data_Preproc')
-    # processors['training'] = io_utils.import_class('train_gcn')
+    processors['training'] = import_class('train_gcn.SGCN_Training')
     # processors['recognition_live'] = io_utils.import_class('realtime_gcn')
     # processors['recognition_images'] = io_utils.import_class('images_gcn')
 

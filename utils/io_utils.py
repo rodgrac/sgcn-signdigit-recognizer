@@ -14,11 +14,10 @@ class IO:
     def __init__(self, argv=None):
         self.arg = argv
         self.home_dir = self.arg.home_dir
-        self.dataset_dir = self.arg.dataset_dir
+        self.log_dir = self.arg.log_dir
         self.save_log = self.arg.save_log
         self.print_to_screen = self.arg.print_log
         self.cur_time = time.time()
-        self.save_arg(self.arg)
 
     def progress_bar(self, current, total):
         increments = 50
@@ -69,16 +68,21 @@ class IO:
         if self.print_to_screen:
             print(log)
         if self.save_log:
-            with open('{}/log.txt'.format(self.home_dir), 'a') as f:
+            with open('{}/{}/preproc_log.txt'.format(self.home_dir, self.log_dir), 'a') as f:
                 print(log, file=f)
 
-    def save_arg(self, arg):
-        session_file = '{}/config.yaml'.format(self.home_dir)
+    def save_arg(self, arg, p_type):
+        if p_type == 'preproc':
+            session_file = '{}/{}/preproc_config.yaml'.format(self.home_dir, self.log_dir)
+        elif p_type == 'training':
+            session_file = '{}/{}/train_config.yaml'.format(self.home_dir, self.log_dir)
+        elif p_type == 'testing':
+            session_file = '{}/{}/test_config.yaml'.format(self.home_dir, self.log_dir)
 
         # save arg
         arg_dict = vars(arg)
-        if not os.path.exists(self.home_dir):
-            os.makedirs(self.home_dir)
+        if not os.path.exists(os.path.join(self.home_dir, self.log_dir)):
+            os.makedirs(os.path.join(self.home_dir, self.log_dir))
         with open(session_file, 'w') as f:
             f.write('# command line: {}\n\n'.format(' '.join(sys.argv)))
             yaml.dump(arg_dict, f, default_flow_style=False, indent=4)

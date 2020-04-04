@@ -1,5 +1,7 @@
-home_dir: /home/rodneygracian/Desktop/Rod/research/projects/asl/GCN/asl_digits_recog/src/data
+home_dir: /home/rodneygracian/Desktop/Rod/research/projects/asl/GCN/asl_digits_recog/src
 dataset_dir: /home/rodneygracian/Desktop/Rod/research/projects/asl/GCN/asl_digits_recog/dataset/sldd/Dataset
+
+work_dir: data
 
 phases:
   skeleton,
@@ -25,3 +27,5 @@ normalize:
 tfrecord:
   input_dir: ./normalized
   output_dir: ./tfrecord
+
+log_dir: logs

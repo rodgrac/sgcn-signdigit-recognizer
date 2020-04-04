@@ -1,18 +1,21 @@
 import argparse
+import os
 from distutils.util import strtobool
 
 import yaml
 
-from .io_utils import IO
-from .io_utils import import_class
-from .io_utils import str2dict
-from .io_utils import str2list
+from utils.io_utils import IO
+from utils.io_utils import import_class
+from utils.io_utils import str2dict
+from utils.io_utils import str2list
 
 
 class Data_Preproc(IO):
     def __init__(self, argv=None):
         self.load_arg(argv)
         super().__init__(self.arg)
+        self.save_arg(self.arg, 'preproc')
+        self.work_dir = self.arg.work_dir
 
     def load_arg(self, argv=None):
         parser = self.get_parser()
@@ -34,8 +37,8 @@ class Data_Preproc(IO):
     def start(self):
 
         if self.arg.clean_homedir:
-            self.remove_dir(self.home_dir)
-            self.create_dir(self.home_dir)
+            self.remove_dir(os.path.join(self.home_dir, self.work_dir))
+            self.create_dir(os.path.join(self.home_dir, self.work_dir))
 
         phases = self.get_phases()
 
@@ -70,6 +73,7 @@ class Data_Preproc(IO):
         parser.add_argument('-ds', '--dataset_dir', type=str, default=None)
         parser.add_argument('-clr', '--clean_homedir', type=strtobool, default=False)
 
+        parser.add_argument('--work_dir', type=str, default='data')
         parser.add_argument('--save_log', type=strtobool, default=True)
         parser.add_argument('--print_log', type=strtobool, default=True)
 

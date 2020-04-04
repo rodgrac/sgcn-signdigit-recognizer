@@ -1,12 +1,14 @@
 import os
 
-from data_gen.io_utils import IO
+from utils.io_utils import IO
 
 
 class Preprocessor(IO):
     def __init__(self, phase_name, argv=None):
         super().__init__(argv)
         self.phase_name = phase_name
+        self.work_dir = self.arg.work_dir
+        self.dataset_dir = self.arg.dataset_dir
         self.input_dir, self.output_dir = self.get_input_output_dir(phase_name)
         self.ensure_dir_exists(self.output_dir)
 
@@ -16,7 +18,7 @@ class Preprocessor(IO):
     def get_input_output_dir(self, phase_name):
         input_dir = None
         output_dir = None
-        tmp_dir = self.home_dir
+        tmp_dir = os.path.join(self.home_dir, self.work_dir)
         phase_args = self.arg.__getattribute__(phase_name)
 
         if 'input_dir' in phase_args:

@@ -130,7 +130,7 @@ def openpose_match(data_numpy):
     # data of frame 2
     xy2 = data_numpy[0:2, 1:T, :, :].reshape(2, T - 1, V, 1, M)
     # square of distance between frame 1&2 (shape: T-1, M, M)
-    distance = ((xy2 - xy1)**2).sum(axis=2).sum(axis=0)
+    distance = ((xy2 - xy1) ** 2).sum(axis=2).sum(axis=0)
 
     # match pose
     forward_map = np.zeros((T, M), dtype=int) - 1
@@ -151,7 +151,7 @@ def openpose_match(data_numpy):
     new_data_numpy = np.zeros(data_numpy.shape)
     for t in range(T):
         new_data_numpy[:, t, :, :] = data_numpy[:, t, :, forward_map[
-            t]].transpose(1, 2, 0)
+                                                             t]].transpose(1, 2, 0)
     data_numpy = new_data_numpy
 
     # score sort
