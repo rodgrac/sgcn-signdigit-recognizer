@@ -1,1 +1,1 @@
-from . import stgcn
+from . import sgcn

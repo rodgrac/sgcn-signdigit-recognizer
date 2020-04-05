@@ -12,6 +12,7 @@ class Splitter(Preprocessor):
         super().__init__('split', argv)
         self.val = float(self.arg.split['test']) / 100.0
         self.seed = self.arg.split['seed']
+        self.remove_dir('{}/split'.format(os.path.join(self.home_dir, self.work_dir)))
 
     def start(self):
         label_path = '{}/label.json'.format(self.input_dir)
@@ -53,7 +54,7 @@ class Splitter(Preprocessor):
         self.ensure_dir_exists(dest_dir)
 
         for item in items:
-            print('* {}'.format(item))
+            # print('* {}'.format(item))
             src = '{}/{}'.format(src_dir, item)
             dest = '{}/{}'.format(dest_dir, item)
             shutil.copy(src, dest)

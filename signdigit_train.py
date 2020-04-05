@@ -8,7 +8,7 @@ from tensorflow.compat.v1 import ConfigProto
 from tensorflow.compat.v1 import InteractiveSession
 from tqdm import tqdm
 
-from model.stgcn import Model
+from model.sgcn import Model
 from utils.io_utils import IO
 
 
@@ -16,7 +16,7 @@ from utils.io_utils import IO
 # logging.getLogger("tensorflow").setLevel(logging.CRITICAL)
 # logging.getLogger("tensorflow_hub").setLevel(logging.CRITICAL)
 
-class SGCN_Training(IO):
+class SignDigit_Training(IO):
     def __init__(self, argv=None):
         self.load_arg(argv)
         super().__init__(self.arg)

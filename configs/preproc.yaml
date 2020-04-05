@@ -13,6 +13,7 @@ skeleton:
   input_dir: dataset_dir
   output_dir: ./skeleton
   openpose: /home/rodneygracian/Desktop/Rod/research/projects/asl/GCN/openpose
+  display_keypoints: False
 
 split:
   input_dir: ./skeleton

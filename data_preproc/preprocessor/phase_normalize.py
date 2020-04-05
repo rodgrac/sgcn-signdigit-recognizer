@@ -4,7 +4,7 @@ import sys
 
 from numpy.lib.format import open_memmap
 
-from data_gen.feeder_kinetics import Feeder_kinetics
+from utils.kinetics_feeder import Feeder_kinetics
 from .preprocessor import Preprocessor
 
 

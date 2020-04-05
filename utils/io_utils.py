@@ -68,7 +68,7 @@ class IO:
         if self.print_to_screen:
             print(log)
         if self.save_log:
-            with open('{}/{}/preproc_log.txt'.format(self.home_dir, self.log_dir), 'a') as f:
+            with open('{}/{}/log.txt'.format(self.home_dir, self.log_dir), 'a') as f:
                 print(log, file=f)
 
     def save_arg(self, arg, p_type):
@@ -104,10 +104,6 @@ def str2dict(v):
 
 
 def str2list(strlist):
-    """Convert key1,key2,... string into list.
-    :param strlist: key1,key2
-    strlist can be comma or space separated.
-    """
     if strlist is not None:
         strlist = strlist.strip(', ')
     if not strlist:

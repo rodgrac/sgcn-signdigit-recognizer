@@ -4,11 +4,11 @@ import cv2
 import numpy as np
 import tensorflow as tf
 
-from data_gen.preprocessor.skeleton_gen import detect_keypoints
-from data_gen.preprocessor.skeleton_gen import init_openpose
-from hand_utils import detector_utils
-from hand_utils import draw_util
-from model.stgcn import Model
+from data_preproc.preprocessor.phase_skeleton import detect_keypoints
+from data_preproc.preprocessor.phase_skeleton import init_openpose
+from hand_utils import hand_detector
+from hand_utils import hand_draw_util
+from model.sgcn import Model
 
 PATH = "/home/rodneygracian/Desktop/Rod/research/projects/asl/GCN/asl_digits_recog/dataset/sldd/Dataset/5"
 
@@ -67,7 +67,7 @@ if __name__ == '__main__':
     im_width, im_height = (100, 100)
 
     # detection_graph, sess = detection_rectangles.load_inference_graph()
-    detection_graph, sess = detector_utils.load_inference_graph()
+    detection_graph, sess = hand_detector.load_inference_graph()
 
     opWrapper = init_openpose()
     model_ = init_Model(10)
@@ -93,7 +93,7 @@ if __name__ == '__main__':
             # # Draw bounding boxes
             # draw_util.draw_box_on_image(hand_box, image_np)
             # # Draw hand keypoints
-            draw_util.draw_hand_keypoints(keypoints, img)
+            hand_draw_util.draw_hand_keypoints(keypoints, img)
 
         # Calculate & Draw Frames per second (FPS)
         # num_frames += 1

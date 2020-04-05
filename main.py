@@ -8,10 +8,10 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Parser')
 
     processors = dict()
-    processors['preprocessing'] = import_class('data_gen.preproc_data.Data_Preproc')
-    processors['training'] = import_class('train_gcn.SGCN_Training')
-    # processors['recognition_live'] = io_utils.import_class('realtime_gcn')
-    # processors['recognition_images'] = io_utils.import_class('images_gcn')
+    processors['preprocessing'] = import_class('data_preproc.preproc_main.Data_Preproc')
+    processors['training'] = import_class('signdigit_train.SignDigit_Training')
+    processors['recognition_webcam'] = import_class('signdigit_webcam.SignDigit_Webcam')
+    # processors['recognition_images'] = import_class('images_gcn')
 
     subparsers = parser.add_subparsers(dest='processor')
     for k, p in processors.items():

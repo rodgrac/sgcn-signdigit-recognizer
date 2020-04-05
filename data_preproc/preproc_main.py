@@ -36,7 +36,7 @@ class Data_Preproc(IO):
 
     def start(self):
 
-        if self.arg.clean_homedir:
+        if self.arg.clean_workdir:
             self.remove_dir(os.path.join(self.home_dir, self.work_dir))
             self.create_dir(os.path.join(self.home_dir, self.work_dir))
 
@@ -53,10 +53,10 @@ class Data_Preproc(IO):
 
     def get_phases(self):
         return dict(
-            skeleton=import_class('data_gen.preprocessor.skeleton_gen.Skeleton_Generator'),
-            split=import_class('data_gen.preprocessor.splitter.Splitter'),
-            normalize=import_class('data_gen.preprocessor.kinetics_gendata.Normalizer'),
-            tfrecord=import_class('data_gen.preprocessor.gen_tfrecord_data.Tfrecord_Generator')
+            skeleton=import_class('data_preproc.preprocessor.phase_skeleton.Skeleton_Generator'),
+            split=import_class('data_preproc.preprocessor.phase_splitter.Splitter'),
+            normalize=import_class('data_preproc.preprocessor.phase_normalize.Normalizer'),
+            tfrecord=import_class('data_preproc.preprocessor.phase_tfrecord.Tfrecord_Generator')
         )
 
     def print_phase(self, name):
@@ -71,15 +71,17 @@ class Data_Preproc(IO):
         parser.add_argument('-c', '--config', type=str, default=None)
         parser.add_argument('-dd', '--home_dir', type=str, default=None)
         parser.add_argument('-ds', '--dataset_dir', type=str, default=None)
-        parser.add_argument('-clr', '--clean_homedir', type=strtobool, default=False)
+        parser.add_argument('-clr', '--clean_workdir', type=strtobool, default=False)
 
         parser.add_argument('--work_dir', type=str, default='data')
         parser.add_argument('--save_log', type=strtobool, default=True)
         parser.add_argument('--print_log', type=strtobool, default=True)
+        parser.add_argument('--log_dir', type=str, default='logs')
 
         parser.add_argument('-ph', '--phases', type=str2list, default=[])
         parser.add_argument('-sk', '--skeleton', type=str2dict, default=dict())
         parser.add_argument('-nm', '--normalize', type=str2dict, default=dict())
         parser.add_argument('-sp', '--split', type=str2dict, default=dict())
         parser.add_argument('-tr', '--tfrecord', type=str2dict, default=dict())
+
         return parser

@@ -9,11 +9,11 @@ train_batch_size: 32
 test_batch_size: 32
 
 base_lr: 0.1
-steps: [50, 100]
+steps: [40, 70]
 
 save_result: True
 result_name: my_checkpoint
-clear_ckpt: False
+clear_ckpt: True
 log_dir: logs
 ckpt_dir: checkpoints
 ckpt_freq: 50
