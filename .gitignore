@@ -1,8 +1,6 @@
 checkpoints/
 data/
 logs/
-protos/
-frozen_graphs/
 recorder/
 
 # Byte-compiled / optimized / DLL files
