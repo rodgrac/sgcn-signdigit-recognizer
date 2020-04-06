@@ -1,3 +1,8 @@
+######################################################
+# Sign Digit Recognizer built on Graph Convolutional Networks
+# Author: Rodney Gracian Dsouza
+######################################################
+
 import argparse
 import sys
 

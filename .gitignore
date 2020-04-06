@@ -2,6 +2,7 @@ checkpoints/
 data/
 logs/
 recorder/
+.idea/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
