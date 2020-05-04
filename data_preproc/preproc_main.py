@@ -78,6 +78,7 @@ class Data_Preproc(IO):
         parser.add_argument('--print_log', type=strtobool, default=True)
         parser.add_argument('--log_dir', type=str, default='logs')
 
+        parser.add_argument('--labels', type=str2list, default=[])
         parser.add_argument('-ph', '--phases', type=str2list, default=[])
         parser.add_argument('-sk', '--skeleton', type=str2dict, default=dict())
         parser.add_argument('-nm', '--normalize', type=str2dict, default=dict())

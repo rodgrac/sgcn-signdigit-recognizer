@@ -1,21 +1,21 @@
 home_dir: /home/rodneygracian/Desktop/Rod/research/projects/asl/GCN/asl_digits_recog/src
-train_dir: data/tfrecord
-test_dir: data/tfrecord
+train_dir: data/data_alphabets/tfrecord
+test_dir: data/data_alphabets/tfrecord
 
-num_classes: 10
+num_classes: 36
 num_epochs: 100
 
 train_batch_size: 32
 test_batch_size: 32
 
 base_lr: 0.1
-steps: [40, 70]
+steps: [40, 80]
 
 save_result: True
-result_name: my_checkpoint
+result_name: ckpt_alphabets_f
 clear_ckpt: True
-log_dir: logs
-ckpt_dir: checkpoints
+log_dir: logs/alphabets/train
+ckpt_dir: checkpoints/ckpt_alphabets
 ckpt_freq: 50
 
 

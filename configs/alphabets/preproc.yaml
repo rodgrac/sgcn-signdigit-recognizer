@@ -1,0 +1,38 @@
+home_dir: /home/rodneygracian/Desktop/Rod/research/projects/asl/GCN/asl_digits_recog/src
+dataset_dir: /home/rodneygracian/Desktop/Rod/research/projects/asl/GCN/asl_digits_recog/dataset/asl_alphabets/new
+
+work_dir: data/data_alphabets
+
+labels: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, a, b, c, d, e, f, g, h, i, j,
+  k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z
+
+phases:
+  skeleton,
+  split,
+  normalize,
+  tfrecord
+
+skeleton:
+  input_dir: dataset_dir
+  output_dir: ./skeleton
+  openpose: /home/rodneygracian/Desktop/Rod/research/projects/asl/GCN/openpose
+  display_keypoints: False
+  resize: True
+  im_width: 256
+  im_height: 256
+
+split:
+  input_dir: ./skeleton
+  output_dir: ./split
+  test: 10
+  seed: 2
+
+normalize:
+  input_dir: ./split
+  output_dir: ./normalized
+
+tfrecord:
+  input_dir: ./normalized
+  output_dir: ./tfrecord
+
+log_dir: logs/alphabets

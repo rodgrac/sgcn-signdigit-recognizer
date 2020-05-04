@@ -11,6 +11,7 @@ from hand_utils import hand_draw_util
 from model.sgcn import Model
 from utils import openpose_utils as op_ap
 from utils.io_utils import IO
+from utils.io_utils import str2list
 
 
 class SignDigit_Webcam(IO):
@@ -22,6 +23,7 @@ class SignDigit_Webcam(IO):
         self.num_classes = self.arg.num_classes
         self.handscore_thresh = self.arg.hand_thresh
         self.digitscore_thresh = self.arg.sign_thresh
+        self.labels_list = self.arg.labels
 
         self.video_source = self.arg.video_src
         self.im_width, self.im_height = (self.arg.im_width, self.arg.im_height)
@@ -46,7 +48,7 @@ class SignDigit_Webcam(IO):
 
         self.handbox = []
         self.keypoints = []
-        self.pred_class = -1
+        self.pred_class = self.num_classes
 
         self.recorder = None
 
@@ -82,9 +84,9 @@ class SignDigit_Webcam(IO):
                     if np.max(pred) > self.digitscore_thresh:
                         self.pred_class = np.argmax(pred)
                     else:
-                        self.pred_class = -1
+                        self.pred_class = self.num_classes
                 else:
-                    self.pred_class = -1
+                    self.pred_class = self.num_classes
 
                 # draw_util.draw_box_on_image(hand_box, image_np)
                 hand_draw_util.draw_hand_keypoints(self.keypoints, image_np)
@@ -94,7 +96,8 @@ class SignDigit_Webcam(IO):
             # num_frames += 1
             # elapsed_time = (datetime.datetime.now() - start_time).total_seconds()
             # fps = num_frames / elapsed_time
-            hand_draw_util.draw_text_on_image("Signed digit is : " + str(int(self.pred_class)), image_np)
+            hand_draw_util.draw_text_on_image("Signed digit is : " + str(self.labels_list[int(self.pred_class)]),
+                                              image_np)
             image_np = cv2.cvtColor(image_np, cv2.COLOR_RGB2BGR)
 
             if save_video:
@@ -149,6 +152,7 @@ class SignDigit_Webcam(IO):
 
         parser.add_argument('--openpose', type=str, default=None)
         parser.add_argument('--num_classes', type=int, default=10)
+        parser.add_argument('--labels', type=str2list, default=[])
 
         parser.add_argument('--ckpt_dir', type=str, default='checkpoints')
         parser.add_argument('--weights', type=str, default='final_checkpoint')

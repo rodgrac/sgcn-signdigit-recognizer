@@ -13,6 +13,9 @@ class Skeleton_Generator(Preprocessor):
         self.input_dir = self.dataset_dir
         self.display_keypoints = self.arg.skeleton['display_keypoints']
         self.openpose_path = self.arg.skeleton['openpose']
+        self.resize = self.arg.skeleton['resize']
+        self.im_width = self.arg.skeleton['im_width']
+        self.im_height = self.arg.skeleton['im_height']
         self.opWrap = op_ap.init_openpose(self.openpose_path)
 
     def start(self):
@@ -34,6 +37,8 @@ class Skeleton_Generator(Preprocessor):
                     self.print_log(
                         "* {} [{} / {}] \t{} ...".format(subdir, len(label_map) + 1, num_files * 10, filename))
                     img = cv2.imread(os.path.join(subdir_path, filename))
+                    if self.resize is True:
+                        img = cv2.resize(img, (self.im_width, self.im_height), interpolation=cv2.INTER_CUBIC)
                     img = cv2.flip(img, 1)
                     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
                     (im_height, im_width) = img.shape[:2]
@@ -41,10 +46,17 @@ class Skeleton_Generator(Preprocessor):
                     if self.display_keypoints:
                         draw_hand_keypoints(keypoints, img)
                         cv2.imshow("Hand Pose", cv2.cvtColor(img, cv2.COLOR_RGB2BGR))
-                        cv2.waitKey(0)
+                        key = cv2.waitKey(0)
+
+                        if key & 0xFF == ord('q'):
+                            exit()
+
+                        break
 
                     output_sequence_path = '{}/{}.json'.format(output_dir, os.path.splitext(filename)[0])
-                    frame_info = self.json_pack(im_width, im_height, keypoints, label=subdir, label_index=int(subdir))
+
+                    frame_info = self.json_pack(im_width, im_height, keypoints, label=subdir,
+                                                label_index=self.labels_list.index(subdir))
                     self.save_json(frame_info, output_sequence_path)
 
                     label_info = dict()
@@ -55,6 +67,9 @@ class Skeleton_Generator(Preprocessor):
 
                     # save label map:
                     self.save_json(label_map, label_path)
+
+        if self.display_keypoints:
+            exit()
 
         return label_map
 

@@ -56,6 +56,8 @@ class SignDigit_Training(IO):
         self.learning_rate = tf.keras.optimizers.schedules.PiecewiseConstantDecay(boundaries, values)
         self.optimizer = tf.keras.optimizers.SGD(learning_rate=self.learning_rate, momentum=0.9, nesterov=True)
 
+        self.remove_dir(os.path.join(self.home_dir, self.log_dir))
+
         with self.strategy.scope():
             ckpt = tf.train.Checkpoint(model=self.model, optimizer=self.optimizer)
             self.ckpt_mngr = tf.train.CheckpointManager(ckpt, self.checkpoint_path, max_to_keep=5)

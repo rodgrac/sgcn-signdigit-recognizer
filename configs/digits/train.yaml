@@ -1,0 +1,21 @@
+home_dir: /home/rodneygracian/Desktop/Rod/research/projects/asl/GCN/asl_digits_recog/src
+train_dir: data/data_digits/tfrecord
+test_dir: data/data_digits/tfrecord
+
+num_classes: 10
+num_epochs: 100
+
+train_batch_size: 32
+test_batch_size: 32
+
+base_lr: 0.1
+steps: [40, 80]
+
+save_result: True
+result_name: ckpt_digits_f
+clear_ckpt: True
+log_dir: logs/digits/train
+ckpt_dir: checkpoints/ckpt_digits
+ckpt_freq: 50
+
+

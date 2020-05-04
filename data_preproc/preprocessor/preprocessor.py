@@ -10,6 +10,7 @@ class Preprocessor(IO):
         self.work_dir = self.arg.work_dir
         self.dataset_dir = self.arg.dataset_dir
         self.input_dir, self.output_dir = self.get_input_output_dir(phase_name)
+        self.labels_list = self.arg.labels
         self.ensure_dir_exists(self.output_dir)
 
     def start(self):

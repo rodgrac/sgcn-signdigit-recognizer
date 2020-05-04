@@ -1,17 +1,19 @@
 home_dir: /home/rodneygracian/Desktop/Rod/research/projects/asl/GCN/asl_digits_recog/src
 openpose: /home/rodneygracian/Desktop/Rod/research/projects/asl/GCN/openpose
 
+labels: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, -1
+
 num_classes: 10
 hand_thresh: 0.5
 sign_thresh: 0.5
-video_src: 0
+video_src: 2
 
 im_width: 640
 im_height: 480
 
 batch_size: 32
-ckpt_dir: checkpoints
-weights: my_checkpoint
-log_dir: logs
+ckpt_dir: checkpoints/ckpt_digits
+weights: ckpt_digits_f
+log_dir: logs/digits/test
 
 

@@ -2,7 +2,7 @@ import tensorflow as tf
 
 from graph.kinetics_skeleton import Graph
 
-regularizer = tf.keras.regularizers.l2(l=0.0001)
+regularizer = tf.keras.regularizers.l2(l=0.01)
 initializer = tf.keras.initializers.VarianceScaling(scale=2., mode='fan_out', distribution='truncated_normal')
 
 

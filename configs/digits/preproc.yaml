@@ -1,7 +1,9 @@
 home_dir: /home/rodneygracian/Desktop/Rod/research/projects/asl/GCN/asl_digits_recog/src
 dataset_dir: /home/rodneygracian/Desktop/Rod/research/projects/asl/GCN/asl_digits_recog/dataset/sldd/Dataset
 
-work_dir: data
+work_dir: data/data_digits
+
+labels: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
 
 phases:
   skeleton,
@@ -14,6 +16,9 @@ skeleton:
   output_dir: ./skeleton
   openpose: /home/rodneygracian/Desktop/Rod/research/projects/asl/GCN/openpose
   display_keypoints: False
+  resize: False
+  im_width: 256
+  im_height: 256
 
 split:
   input_dir: ./skeleton
@@ -29,4 +34,4 @@ tfrecord:
   input_dir: ./normalized
   output_dir: ./tfrecord
 
-log_dir: logs
+log_dir: logs/digits
