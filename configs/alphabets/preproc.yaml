@@ -3,6 +3,8 @@ dataset_dir: /home/rodneygracian/Desktop/Rod/research/projects/asl/GCN/asl_digit
 
 work_dir: data/data_alphabets
 
+clean_workdir: True
+
 labels: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, a, b, c, d, e, f, g, h, i, j,
   k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z
 
@@ -17,14 +19,14 @@ skeleton:
   output_dir: ./skeleton
   openpose: /home/rodneygracian/Desktop/Rod/research/projects/asl/GCN/openpose
   display_keypoints: False
-  resize: True
+  resize: False
   im_width: 256
   im_height: 256
 
 split:
   input_dir: ./skeleton
   output_dir: ./split
-  test: 10
+  test: 20
   seed: 2
 
 normalize:

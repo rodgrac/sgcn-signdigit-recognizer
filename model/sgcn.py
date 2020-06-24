@@ -37,6 +37,8 @@ class SGCN_Block(tf.keras.Model):
 
         self.act = tf.keras.layers.Activation(activation)
 
+        self.l_relu = tf.keras.layers.LeakyReLU()
+
         if not residual:
             self.residual = lambda x, training=False: 0
         elif residual and stride == 1 and not downsample:
@@ -58,6 +60,7 @@ class SGCN_Block(tf.keras.Model):
         x = self.bnorm(x, training=training)
         x += res
         x = self.act(x)
+        # x = self.l_relu(x)
         return x, A
 
 
@@ -74,14 +77,14 @@ class Model(tf.keras.Model):
 
         self.SGCN_layers.append(SGCN_Block(64, residual=False))
         self.SGCN_layers.append(SGCN_Block(64))
-        self.SGCN_layers.append(SGCN_Block(64))
-        self.SGCN_layers.append(SGCN_Block(64))
+        # self.SGCN_layers.append(SGCN_Block(64))
+        # self.SGCN_layers.append(SGCN_Block(64))
         self.SGCN_layers.append(SGCN_Block(128, stride=2, downsample=True))
         self.SGCN_layers.append(SGCN_Block(128))
-        self.SGCN_layers.append(SGCN_Block(128))
+        # self.SGCN_layers.append(SGCN_Block(128))
         self.SGCN_layers.append(SGCN_Block(256, stride=2, downsample=True))
         self.SGCN_layers.append(SGCN_Block(256))
-        self.SGCN_layers.append(SGCN_Block(256))
+        # self.SGCN_layers.append(SGCN_Block(256))
 
         self.pool = tf.keras.layers.GlobalAveragePooling2D(data_format='channels_first')
 
@@ -112,7 +115,7 @@ class Model(tf.keras.Model):
         # N,C,T,V
         x = self.pool(x)
         x = tf.reshape(x, [N, -1, 1, 1])
-        #x = tf.reduce_mean(x, axis=1)
+        # x = tf.reduce_mean(x, axis=1)
         x = self.logits(x)
         x = tf.reshape(x, [N, -1])
 

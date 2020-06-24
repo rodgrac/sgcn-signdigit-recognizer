@@ -69,7 +69,8 @@ class SignDigit_Webcam(IO):
             box_maxc = np.argmax(scores)
 
             box_relative2absolute = lambda box: (
-                box[1] * self.im_width, box[3] * self.im_width, box[0] * self.im_height, box[2] * self.im_height)
+                max(0, box[1] * self.im_width - 25), min(self.im_width, box[3] * self.im_width + 25),
+                max(0, box[0] * self.im_height - 25), min(self.im_height, box[2] * self.im_height + 25))
 
             if scores[box_maxc] > self.handscore_thresh:
                 hand_box = [box_relative2absolute(relative_boxes[box_maxc])]
@@ -77,7 +78,7 @@ class SignDigit_Webcam(IO):
                 self.keypoints, _ = op_ap.detect_keypoints(image_np, self.opWrapper, hand_box)
 
                 if len(self.keypoints):
-                    pose, score = op_ap.read_coordinates(self.keypoints, self.im_width, self.im_height)
+                    pose, score = op_ap.read_coordinates(self.keypoints, self.im_width, self.im_height, hand_box[0])
                     feature = feeder_kin(pose, score)
 
                     pred = self.test_step(feature).numpy()
@@ -88,7 +89,7 @@ class SignDigit_Webcam(IO):
                 else:
                     self.pred_class = self.num_classes
 
-                # draw_util.draw_box_on_image(hand_box, image_np)
+                hand_draw_util.draw_box_on_image(hand_box, image_np)
                 hand_draw_util.draw_hand_keypoints(self.keypoints, image_np)
             else:
                 self.pred_class = -1

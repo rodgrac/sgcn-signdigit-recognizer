@@ -35,8 +35,10 @@ class Skeleton_Generator(Preprocessor):
             for filename in os.listdir(subdir_path):
                 if os.path.splitext(filename)[0] not in label_map:
                     self.print_log(
-                        "* {} [{} / {}] \t{} ...".format(subdir, len(label_map) + 1, num_files * 10, filename))
+                        "* {} [{} / {}] \t{} ...".format(subdir, len(label_map) + 1, num_files * len(self.labels_list),
+                                                         filename))
                     img = cv2.imread(os.path.join(subdir_path, filename))
+                    img = cv2.copyMakeBorder(img, 50, 50, 50, 50, cv2.BORDER_CONSTANT, value=[0, 0, 0])
                     if self.resize is True:
                         img = cv2.resize(img, (self.im_width, self.im_height), interpolation=cv2.INTER_CUBIC)
                     img = cv2.flip(img, 1)
@@ -50,8 +52,10 @@ class Skeleton_Generator(Preprocessor):
 
                         if key & 0xFF == ord('q'):
                             exit()
-
-                        break
+                        if key & 0xFF == ord('n'):
+                            break
+                        else:
+                            continue
 
                     output_sequence_path = '{}/{}.json'.format(output_dir, os.path.splitext(filename)[0])
 

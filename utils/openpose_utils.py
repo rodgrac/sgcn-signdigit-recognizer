@@ -54,10 +54,12 @@ def detect_keypoints(image, opWrapper_, hand_boxes=None):
     return hand_keypoints, datum.cvOutputData
 
 
-def read_coordinates(keypoints, frame_width, frame_height):
+def read_coordinates(keypoints, frame_width, frame_height, hand_box=None):
     score, coordinates = [], []
+    if hand_box is None:
+        hand_box = [0, frame_width, 0, frame_height]
     for key in keypoints[0]:
-        coordinates += [key[0] / frame_width,
-                        key[1] / frame_height]
+        coordinates += [(key[0] - hand_box[0]) / (hand_box[1] - hand_box[0]),
+                        (key[1] - hand_box[2]) / (hand_box[3] - hand_box[2])]
         score += [float(key[2])]
     return coordinates, score

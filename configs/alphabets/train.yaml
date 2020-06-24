@@ -3,13 +3,13 @@ train_dir: data/data_alphabets/tfrecord
 test_dir: data/data_alphabets/tfrecord
 
 num_classes: 36
-num_epochs: 100
+num_epochs: 50
 
 train_batch_size: 32
 test_batch_size: 32
 
 base_lr: 0.1
-steps: [40, 80]
+steps: [20, 40]
 
 save_result: True
 result_name: ckpt_alphabets_f
