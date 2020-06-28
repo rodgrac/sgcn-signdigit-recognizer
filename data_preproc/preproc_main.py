@@ -37,9 +37,11 @@ class Data_Preproc(IO):
     def start(self):
 
         if self.arg.clean_workdir:
-            print('Cleaning data preproc directory')
+            print('CLEAN data preproc directory')
             self.remove_dir(os.path.join(self.home_dir, self.work_dir))
             self.create_dir(os.path.join(self.home_dir, self.work_dir))
+        else:
+            print('RESUME data preproc directory')
 
         phases = self.get_phases()
 

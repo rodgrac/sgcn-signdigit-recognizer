@@ -54,7 +54,11 @@ class SignDigit_Webcam(IO):
 
     def start(self):
         save_video = False
-
+        start_inf = False
+        num_det = 0
+        pad = 10
+        pred_accum = np.zeros((1, self.num_classes))
+        sign_history = ''
         while True:
             ret, image_np = self.cap.read()
             image_np = cv2.resize(image_np, (self.im_width, self.im_height), interpolation=cv2.INTER_CUBIC)
@@ -69,25 +73,39 @@ class SignDigit_Webcam(IO):
             box_maxc = np.argmax(scores)
 
             box_relative2absolute = lambda box: (
-                max(0, box[1] * self.im_width - 25), min(self.im_width, box[3] * self.im_width + 25),
-                max(0, box[0] * self.im_height - 25), min(self.im_height, box[2] * self.im_height + 25))
+                max(0, box[1] * self.im_width - pad), min(self.im_width, box[3] * self.im_width + pad),
+                max(0, box[0] * self.im_height - pad), min(self.im_height, box[2] * self.im_height + pad))
 
             if scores[box_maxc] > self.handscore_thresh:
                 hand_box = [box_relative2absolute(relative_boxes[box_maxc])]
 
                 self.keypoints, _ = op_ap.detect_keypoints(image_np, self.opWrapper, hand_box)
 
-                if len(self.keypoints):
+                if len(self.keypoints) and start_inf:
                     pose, score = op_ap.read_coordinates(self.keypoints, self.im_width, self.im_height, hand_box[0])
                     feature = feeder_kin(pose, score)
 
                     pred = self.test_step(feature).numpy()
-                    if np.max(pred) > self.digitscore_thresh:
-                        self.pred_class = np.argmax(pred)
+
+                    if np.max(pred) > 0.33 and np.sum(-np.partition(-pred, 3)[:3]) > 0.66:
+                        print("Prediction")
+                        print(str(self.labels_list[np.argmax(pred)]))
+                        pred_accum += pred
+                        num_det += 1
+
+                        if num_det == 5:
+                            pred = pred_accum / 5
+                            if np.max(pred) > 0.33 and np.sum(-np.partition(-pred, 3)[:3]) > 0.66:
+                                print("Approve")
+                                self.pred_class = np.argmax(pred)
+                                sign_history = sign_history + str(self.labels_list[int(self.pred_class)])
+                                pred_accum = np.zeros((1, self.num_classes))
+                            num_det = 0
+
                     else:
                         self.pred_class = self.num_classes
-                else:
-                    self.pred_class = self.num_classes
+                # else:
+                #     self.pred_class = self.num_classes
 
                 hand_draw_util.draw_box_on_image(hand_box, image_np)
                 hand_draw_util.draw_hand_keypoints(self.keypoints, image_np)
@@ -97,8 +115,8 @@ class SignDigit_Webcam(IO):
             # num_frames += 1
             # elapsed_time = (datetime.datetime.now() - start_time).total_seconds()
             # fps = num_frames / elapsed_time
-            hand_draw_util.draw_text_on_image("Signed digit is : " + str(self.labels_list[int(self.pred_class)]),
-                                              image_np)
+
+            hand_draw_util.draw_text_on_image("Signed Text is : " + sign_history, image_np)
             image_np = cv2.cvtColor(image_np, cv2.COLOR_RGB2BGR)
 
             if save_video:
@@ -117,7 +135,11 @@ class SignDigit_Webcam(IO):
                     print("Saving Video")
                     self.recorder.release()
                 save_video = not save_video
-            if key & 0xFF == ord('q'):
+            elif key & 0xFF == ord('i'):
+                start_inf = not start_inf
+                if not start_inf:
+                    sign_history = ''
+            elif key & 0xFF == ord('q'):
                 break
 
         self.cap.release()

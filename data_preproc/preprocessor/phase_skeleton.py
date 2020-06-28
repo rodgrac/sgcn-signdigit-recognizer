@@ -20,25 +20,29 @@ class Skeleton_Generator(Preprocessor):
 
     def start(self):
         label_map_path = '{}/label.json'.format(self.output_dir)
+        failed_kpt_path = '{}/failed_kpt.json'.format(self.output_dir)
         self.print_log("Source directory: '{}'".format(self.input_dir))
         self.print_log("Estimating poses to '{}'...".format(self.output_dir))
 
-        self.process_frames(self.input_dir, self.output_dir, label_map_path, self.opWrap)
+        self.process_frames(self.input_dir, self.output_dir, label_map_path, failed_kpt_path, self.opWrap)
 
         self.print_log("Estimation done")
 
-    def process_frames(self, input_dir, output_dir, label_path, opWrapper):
+    def process_frames(self, input_dir, output_dir, label_path, failed_kpt_path, opWrapper):
         label_map = self.load_label_map(label_path)
+        failed_kpt = self.load_failed_kpt(failed_kpt_path)
         for subdir in os.listdir(input_dir):
             subdir_path = os.path.join(input_dir, subdir)
             num_files = len(os.listdir(subdir_path))
-            for filename in os.listdir(subdir_path):
-                if os.path.splitext(filename)[0] not in label_map:
+            for i, filename in enumerate(os.listdir(subdir_path)):
+                if os.path.splitext(filename)[0] not in label_map and filename not in failed_kpt:
                     self.print_log(
-                        "* {} [{} / {}] \t{} ...".format(subdir, len(label_map) + 1, num_files * len(self.labels_list),
-                                                         filename))
+                        "* {} [{} / {}] [{} / {}] \t{} ...".format(subdir, len(label_map) + 1,
+                                                                   num_files * len(self.labels_list) - len(failed_kpt),
+                                                                   i + 1, len(os.listdir(subdir_path)),
+                                                                   filename))
                     img = cv2.imread(os.path.join(subdir_path, filename))
-                    img = cv2.copyMakeBorder(img, 50, 50, 50, 50, cv2.BORDER_CONSTANT, value=[0, 0, 0])
+                    img = cv2.copyMakeBorder(img, 10, 10, 10, 10, cv2.BORDER_CONSTANT, value=[0, 0, 0])
                     if self.resize is True:
                         img = cv2.resize(img, (self.im_width, self.im_height), interpolation=cv2.INTER_CUBIC)
                     img = cv2.flip(img, 1)
@@ -51,11 +55,20 @@ class Skeleton_Generator(Preprocessor):
                         key = cv2.waitKey(0)
 
                         if key & 0xFF == ord('q'):
+                            self.save_json(failed_kpt, failed_kpt_path)
                             exit()
-                        if key & 0xFF == ord('n'):
-                            break
-                        else:
+                        elif key & 0xFF == ord('p'):
+                            print("Including [{}] in the training set".format(os.path.splitext(filename)[0]))
+                            pass
+                        elif key & 0xFF == ord('f'):
+                            print("Excluding [{}] in the training set. Failed keypoints check!".format(
+                                os.path.splitext(filename)[0]))
+                            failed_kpt.append(filename)
                             continue
+                        else:
+                            self.save_json(failed_kpt, failed_kpt_path)
+                            print("Invalid Key")
+                            exit()
 
                     output_sequence_path = '{}/{}.json'.format(output_dir, os.path.splitext(filename)[0])
 
@@ -72,8 +85,8 @@ class Skeleton_Generator(Preprocessor):
                     # save label map:
                     self.save_json(label_map, label_path)
 
-        if self.display_keypoints:
-            exit()
+        # if self.display_keypoints:
+        #     exit()
 
         return label_map
 
@@ -98,3 +111,10 @@ class Skeleton_Generator(Preprocessor):
         if os.path.isfile(label_map_path):
             label_map = self.read_json(label_map_path)
         return label_map
+
+    def load_failed_kpt(self, failed_kpt_path):
+        failed_kpt = []
+
+        if os.path.isfile(failed_kpt_path):
+            failed_kpt = self.read_json(failed_kpt_path)
+        return failed_kpt
