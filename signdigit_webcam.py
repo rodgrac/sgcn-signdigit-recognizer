@@ -57,13 +57,17 @@ class SignDigit_Webcam(IO):
         start_inf = False
         num_det = 0
         pad = 10
+        scan_interval = 5
         pred_accum = np.zeros((1, self.num_classes))
         sign_history = ''
+        clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
         while True:
             ret, image_np = self.cap.read()
             image_np = cv2.resize(image_np, (self.im_width, self.im_height), interpolation=cv2.INTER_CUBIC)
             try:
-                image_np = cv2.cvtColor(image_np, cv2.COLOR_BGR2RGB)
+                img_yuv = cv2.cvtColor(image_np, cv2.COLOR_BGR2YUV)
+                img_yuv[:, :, 0] = clahe.apply(img_yuv[:, :, 0])
+                image_np = cv2.cvtColor(img_yuv, cv2.COLOR_YUV2RGB)
             except:
                 self.print_log("Error converting to RGB")
 
@@ -82,24 +86,25 @@ class SignDigit_Webcam(IO):
                 self.keypoints, _ = op_ap.detect_keypoints(image_np, self.opWrapper, hand_box)
 
                 if len(self.keypoints) and start_inf:
-                    pose, score = op_ap.read_coordinates(self.keypoints, self.im_width, self.im_height, hand_box[0])
+                    pose, score = op_ap.read_coordinates(self.keypoints, self.im_width, self.im_height, pad,
+                                                         train=False)
                     feature = feeder_kin(pose, score)
 
                     pred = self.test_step(feature).numpy()
 
-                    if np.max(pred) > 0.33 and np.sum(-np.partition(-pred, 3)[:3]) > 0.66:
+                    if np.max(pred) > 0.5 and np.sum(-np.partition(-pred, 5)[1:5]) < 0.25:
                         print("Prediction")
                         print(str(self.labels_list[np.argmax(pred)]))
                         pred_accum += pred
                         num_det += 1
 
-                        if num_det == 5:
-                            pred = pred_accum / 5
-                            if np.max(pred) > 0.33 and np.sum(-np.partition(-pred, 3)[:3]) > 0.66:
+                        if num_det == scan_interval:
+                            pred = pred_accum / scan_interval
+                            if np.max(pred) > 0.5 and np.sum(-np.partition(-pred, 5)[1:5]) < 0.25:
                                 print("Approve")
                                 self.pred_class = np.argmax(pred)
                                 sign_history = sign_history + str(self.labels_list[int(self.pred_class)])
-                                pred_accum = np.zeros((1, self.num_classes))
+                            pred_accum = np.zeros((1, self.num_classes))
                             num_det = 0
 
                     else:

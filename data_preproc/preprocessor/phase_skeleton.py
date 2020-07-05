@@ -84,6 +84,8 @@ class Skeleton_Generator(Preprocessor):
 
                     # save label map:
                     self.save_json(label_map, label_path)
+            self.save_json(failed_kpt, failed_kpt_path)
+        self.save_json(failed_kpt, failed_kpt_path)
 
         # if self.display_keypoints:
         #     exit()
@@ -93,7 +95,7 @@ class Skeleton_Generator(Preprocessor):
     def json_pack(self, frame_width, frame_height, keypoints, label='unknown', label_index=-1):
         frame_data = {}
         skeleton = {}
-        coordinates, score = op_ap.read_coordinates(keypoints, frame_width, frame_height)
+        coordinates, score = op_ap.read_coordinates(keypoints, frame_width, frame_height, train=True)
         skeleton['pose'] = coordinates
         skeleton['score'] = score
 

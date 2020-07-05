@@ -1,15 +1,20 @@
 import argparse
+import io
 import os
 from distutils.util import strtobool
 
+import numpy as np
+import sklearn.metrics
 import tensorflow as tf
 import yaml
+from matplotlib import pyplot as plt
 from tensorflow.compat.v1 import ConfigProto
 from tensorflow.compat.v1 import InteractiveSession
 from tqdm import tqdm
 
 from model.sgcn import Model
 from utils.io_utils import IO
+from utils.io_utils import str2list
 
 
 # os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
@@ -28,6 +33,7 @@ class SignDigit_Training(IO):
 
         self.base_lr = self.arg.base_lr
         self.num_classes = self.arg.num_classes
+        self.class_names = self.arg.labels
         self.epochs = self.arg.num_epochs
 
         self.result_name = self.arg.result_name
@@ -121,9 +127,12 @@ class SignDigit_Training(IO):
 
         train_iter = 0
         test_iter = 0
+
         for epoch in range(self.epochs):
             self.print_log("Epoch: {}".format(epoch + 1))
             self.print_log("Training: ")
+            y_pred_list = []
+            labels_list = []
             with self.strategy.scope():
                 for features, labels in tqdm(train_data):
                     self.train_step(features, labels)
@@ -150,6 +159,10 @@ class SignDigit_Training(IO):
                 self.epoch_test_acc(labels, y_pred)
                 self.test_acc_top_5(labels, y_pred)
                 self.epoch_test_acc_top_5(labels, y_pred)
+
+                y_pred_list.extend(np.argmax(y_pred, axis=1))
+                labels_list.extend(np.argmax(labels, axis=1))
+
                 with self.summary_writer.as_default():
                     tf.summary.scalar("test_acc",
                                       self.test_acc.result(),
@@ -169,6 +182,15 @@ class SignDigit_Training(IO):
                                   step=epoch)
             self.epoch_test_acc.reset_states()
             self.epoch_test_acc_top_5.reset_states()
+
+            cm = sklearn.metrics.confusion_matrix(np.array(labels_list), np.array(y_pred_list))
+            # Log the confusion matrix as an image summary.
+            figure = self.plot_confusion_matrix(cm, class_names=self.class_names)
+            cm_image = self.plot_to_image(figure)
+
+            # Log the confusion matrix as an image summary.
+            with self.summary_writer.as_default():
+                tf.summary.image("Confusion Matrix", cm_image, step=epoch)
 
             if (epoch + 1) % self.save_freq == 0:
                 ckpt_save_path = self.ckpt_mngr.save()
@@ -202,6 +224,39 @@ class SignDigit_Training(IO):
             dataset = dataset.shuffle(shuffle_size)
         return dataset
 
+    def plot_confusion_matrix(self, cm, class_names):
+        figure = plt.figure(figsize=(8, 8))
+        plt.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
+        plt.title('Confusion Matrix')
+        plt.colorbar()
+        tick_marks = np.arange(len(class_names))
+        plt.xticks(tick_marks, class_names, rotation=45)
+        plt.yticks(tick_marks, class_names)
+
+        # cm = np.around(cm.astype('float') / cm.sum(axis=1)[:, np.newaxis], decimals=1)
+        #
+        # threshold = cm.max() / 2.
+        # for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+        #     color = "white" if cm[i, j] > threshold else "black"
+        #     plt.text(j, i, cm[i, j], horizontalalignment="center", color=color)
+
+        plt.tight_layout()
+        plt.ylabel('True label')
+        plt.xlabel('Predicted label')
+        return figure
+
+    def plot_to_image(self, figure):
+        buf = io.BytesIO()
+        plt.savefig(buf, format='png')
+
+        plt.close(figure)
+        buf.seek(0)
+
+        image = tf.image.decode_png(buf.getvalue(), channels=4)
+        image = tf.expand_dims(image, 0)
+
+        return image
+
     @tf.function
     def test_step(self, features):
         logits = self.model(features, training=False)
@@ -233,6 +288,7 @@ class SignDigit_Training(IO):
         parser.add_argument('--train_dir', type=str, default='data/tfrecord')
         parser.add_argument('--test_dir', type=str, default='data/tfrecord')
         parser.add_argument('--num_classes', type=int, default=10)
+        parser.add_argument('--labels', type=str2list, default=[])
 
         parser.add_argument('--result_name', type=str, default='final_checkpoint')
         parser.add_argument('--save_result', type=strtobool, default=True)

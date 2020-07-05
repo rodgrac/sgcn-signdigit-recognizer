@@ -10,7 +10,7 @@ def init_openpose(openpose_path):
     params["hand"] = True
     params["hand_detector"] = 2
     params["hand_net_resolution"] = "384x384"
-    params["hand_scale_number"] = 6
+    params["hand_scale_number"] = 4
     params["hand_scale_range"] = 0.4
     params["body"] = 0
 
@@ -54,12 +54,15 @@ def detect_keypoints(image, opWrapper_, hand_boxes=None):
     return hand_keypoints, datum.cvOutputData
 
 
-def read_coordinates(keypoints, frame_width, frame_height, hand_box=None):
-    score, coordinates = [], []
-    if hand_box is None:
-        hand_box = [0, frame_width, 0, frame_height]
-    for key in keypoints[0]:
-        coordinates += [(key[0] - hand_box[0]) / (hand_box[1] - hand_box[0]),
-                        (key[1] - hand_box[2]) / (hand_box[3] - hand_box[2])]
-        score += [float(key[2])]
+def read_coordinates(keypoints, frame_width, frame_height, pad=0, train=False):
+    keypoints_np = np.array(keypoints[0])
+    if train:
+        key_range_max = np.array([frame_width, frame_height])
+        key_range_min = np.array([0, 0])
+    else:
+        key_range_max = np.max(keypoints_np, axis=0)[:2] + pad
+        key_range_min = np.min(keypoints_np, axis=0)[:2] - pad
+
+    coordinates = list(((keypoints_np[:, :2] - key_range_min) / (key_range_max - key_range_min)).flatten())
+    score = list(keypoints_np[:, 2])
     return coordinates, score

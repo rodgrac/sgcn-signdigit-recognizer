@@ -18,7 +18,7 @@ skeleton:
   input_dir: dataset_dir
   output_dir: ./skeleton
   openpose: /home/rodneygracian/Desktop/Rod/research/projects/asl/GCN/openpose
-  display_keypoints: False
+  display_keypoints: True
   resize: False
   im_width: 256
   im_height: 256
