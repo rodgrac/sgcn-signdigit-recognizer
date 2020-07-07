@@ -8,6 +8,7 @@ import sklearn.metrics
 import tensorflow as tf
 import yaml
 from matplotlib import pyplot as plt
+from sklearn.metrics import classification_report
 from tensorflow.compat.v1 import ConfigProto
 from tensorflow.compat.v1 import InteractiveSession
 from tqdm import tqdm
@@ -113,8 +114,16 @@ class SignDigit_Training(IO):
             features, labels = data
             break
 
+        train_data_freq = np.zeros(self.num_classes)
+        for data in train_data:
+            _, labels = data
+            train_data_freq += np.sum(labels, axis=0)
+
+        class_weights = np.sum(train_data_freq) / (train_data_freq * self.num_classes)
+        class_weights = tf.constant([class_weights], dtype=np.float32)
+
         tf.summary.trace_on(graph=True)
-        self.train_step(features, labels)
+        self.train_step(features, labels, class_weights)
         with self.summary_writer.as_default():
             tf.summary.trace_export(name='training_trace', step=0)
         tf.summary.trace_off()
@@ -135,7 +144,7 @@ class SignDigit_Training(IO):
             labels_list = []
             with self.strategy.scope():
                 for features, labels in tqdm(train_data):
-                    self.train_step(features, labels)
+                    self.train_step(features, labels, class_weights)
                     with self.summary_writer.as_default():
                         tf.summary.scalar("cross_entropy_loss",
                                           self.cross_entropy_loss.result(),
@@ -159,7 +168,6 @@ class SignDigit_Training(IO):
                 self.epoch_test_acc(labels, y_pred)
                 self.test_acc_top_5(labels, y_pred)
                 self.epoch_test_acc_top_5(labels, y_pred)
-
                 y_pred_list.extend(np.argmax(y_pred, axis=1))
                 labels_list.extend(np.argmax(labels, axis=1))
 
@@ -183,7 +191,10 @@ class SignDigit_Training(IO):
             self.epoch_test_acc.reset_states()
             self.epoch_test_acc_top_5.reset_states()
 
-            cm = sklearn.metrics.confusion_matrix(np.array(labels_list), np.array(y_pred_list))
+            print("[F1] ",
+                  classification_report(np.array(labels_list), np.array(y_pred_list), target_names=self.class_names))
+
+            cm = sklearn.metrics.confusion_matrix(np.array(labels_list), np.array(y_pred_list), normalize='true')
             # Log the confusion matrix as an image summary.
             figure = self.plot_confusion_matrix(cm, class_names=self.class_names)
             cm_image = self.plot_to_image(figure)
@@ -263,14 +274,16 @@ class SignDigit_Training(IO):
         return tf.nn.softmax(logits)
 
     @tf.function
-    def train_step(self, features, labels):
-        self.strategy.experimental_run_v2(self.step_fn, args=(features, labels,))
+    def train_step(self, features, labels, class_weights):
+        self.strategy.experimental_run_v2(self.step_fn, args=(features, labels, class_weights))
 
-    def step_fn(self, features, labels):
+    def step_fn(self, features, labels, class_weights):
         with tf.GradientTape() as tape:
             logits = self.model(features, training=True)
-            cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=labels)
-            loss = tf.reduce_sum(cross_entropy) * (1.0 / self.global_batch_size)
+            class_weights = tf.reduce_sum(class_weights * labels, axis=1)
+            unweighted_cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=labels)
+            weighted_cross_entropy = unweighted_cross_entropy * class_weights
+            loss = tf.reduce_sum(weighted_cross_entropy) * (1.0 / self.global_batch_size)
 
         grads = tape.gradient(loss, self.model.trainable_variables)
         self.optimizer.apply_gradients(list(zip(grads, self.model.trainable_variables)))

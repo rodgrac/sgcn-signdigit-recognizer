@@ -37,7 +37,7 @@ class Splitter(Preprocessor):
             print("Holdout complete.")
 
     def holdout_data(self, X, y, val_size, seed_val):
-        X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=val_size, random_state=seed_val)
+        X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=val_size, stratify=y, random_state=seed_val)
         return X_train, X_val, y_train, y_val
 
     def copy_items(self, part, percent, items, input_dir, output_dir, data):

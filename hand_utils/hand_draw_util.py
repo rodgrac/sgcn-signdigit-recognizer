@@ -13,7 +13,7 @@ def draw_box_on_image(boxes, image_np):
 # Show fps value on image.
 def draw_text_on_image(text, image_np):
     cv2.putText(image_np, text, (20, 50),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.75, (77, 255, 9), 2)
+                cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 0, 0), 2)
 
 
 # Draws the fingers keypoints and them

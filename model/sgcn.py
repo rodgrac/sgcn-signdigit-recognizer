@@ -59,8 +59,8 @@ class SGCN_Block(tf.keras.Model):
         x, A = self.sgcn(x, A, training=training)
         x = self.bnorm(x, training=training)
         x += res
-        x = self.act(x)
-        # x = self.l_relu(x)
+        # x = self.act(x)
+        x = self.l_relu(x)
         return x, A
 
 
@@ -118,5 +118,4 @@ class Model(tf.keras.Model):
         # x = tf.reduce_mean(x, axis=1)
         x = self.logits(x)
         x = tf.reshape(x, [N, -1])
-
         return x

@@ -55,7 +55,7 @@ def detect_keypoints(image, opWrapper_, hand_boxes=None):
 
 
 def read_coordinates(keypoints, frame_width, frame_height, pad=0, train=False):
-    keypoints_np = np.array(keypoints[0])
+    keypoints_np = np.array(keypoints[0]).astype(np.float)
     if train:
         key_range_max = np.array([frame_width, frame_height])
         key_range_min = np.array([0, 0])

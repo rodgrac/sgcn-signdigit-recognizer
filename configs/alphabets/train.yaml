@@ -1,18 +1,18 @@
 home_dir: /home/rodneygracian/Desktop/Rod/research/projects/asl/GCN/asl_digits_recog/src
-train_dir: data/data_alphabets/tfrecord
-test_dir: data/data_alphabets/tfrecord
+train_dir: data/data_alphabets/tfrecord/train
+test_dir: data/data_alphabets/tfrecord/test
 
 labels: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, a, b, c, d, e, f, g, h, i, j,
   k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z
 
 num_classes: 36
-num_epochs: 50
+num_epochs: 100
 
 train_batch_size: 32
 test_batch_size: 32
 
 base_lr: 0.1
-steps: [20, 40]
+steps: [30, 60]
 
 save_result: True
 result_name: ckpt_alphabets_f

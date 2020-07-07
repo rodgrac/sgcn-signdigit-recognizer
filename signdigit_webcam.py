@@ -56,18 +56,18 @@ class SignDigit_Webcam(IO):
         save_video = False
         start_inf = False
         num_det = 0
-        pad = 10
-        scan_interval = 5
+        pad = 20
+        scan_interval = 10
         pred_accum = np.zeros((1, self.num_classes))
         sign_history = ''
-        clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+        clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(2, 2))
         while True:
             ret, image_np = self.cap.read()
             image_np = cv2.resize(image_np, (self.im_width, self.im_height), interpolation=cv2.INTER_CUBIC)
             try:
-                img_yuv = cv2.cvtColor(image_np, cv2.COLOR_BGR2YUV)
-                img_yuv[:, :, 0] = clahe.apply(img_yuv[:, :, 0])
-                image_np = cv2.cvtColor(img_yuv, cv2.COLOR_YUV2RGB)
+                image_np = cv2.cvtColor(image_np, cv2.COLOR_BGR2YUV)
+                image_np[:, :, 0] = clahe.apply(image_np[:, :, 0])
+                image_np = cv2.cvtColor(image_np, cv2.COLOR_YUV2RGB)
             except:
                 self.print_log("Error converting to RGB")
 
@@ -78,7 +78,7 @@ class SignDigit_Webcam(IO):
 
             box_relative2absolute = lambda box: (
                 max(0, box[1] * self.im_width - pad), min(self.im_width, box[3] * self.im_width + pad),
-                max(0, box[0] * self.im_height - pad), min(self.im_height, box[2] * self.im_height + pad))
+                max(0, box[0] * self.im_height - pad), min(self.im_height, box[2] * self.im_height))
 
             if scores[box_maxc] > self.handscore_thresh:
                 hand_box = [box_relative2absolute(relative_boxes[box_maxc])]
@@ -86,7 +86,7 @@ class SignDigit_Webcam(IO):
                 self.keypoints, _ = op_ap.detect_keypoints(image_np, self.opWrapper, hand_box)
 
                 if len(self.keypoints) and start_inf:
-                    pose, score = op_ap.read_coordinates(self.keypoints, self.im_width, self.im_height, pad,
+                    pose, score = op_ap.read_coordinates(self.keypoints, self.im_width, self.im_height, 10,
                                                          train=False)
                     feature = feeder_kin(pose, score)
 
@@ -109,8 +109,9 @@ class SignDigit_Webcam(IO):
 
                     else:
                         self.pred_class = self.num_classes
-                # else:
-                #     self.pred_class = self.num_classes
+                else:
+                    pred_accum = np.zeros((1, self.num_classes))
+                    num_det = 0
 
                 hand_draw_util.draw_box_on_image(hand_box, image_np)
                 hand_draw_util.draw_hand_keypoints(self.keypoints, image_np)
@@ -121,7 +122,7 @@ class SignDigit_Webcam(IO):
             # elapsed_time = (datetime.datetime.now() - start_time).total_seconds()
             # fps = num_frames / elapsed_time
 
-            hand_draw_util.draw_text_on_image("Signed Text is : " + sign_history, image_np)
+            hand_draw_util.draw_text_on_image("Signing ... => " + sign_history, image_np)
             image_np = cv2.cvtColor(image_np, cv2.COLOR_RGB2BGR)
 
             if save_video:
@@ -142,11 +143,15 @@ class SignDigit_Webcam(IO):
                 save_video = not save_video
             elif key & 0xFF == ord('i'):
                 start_inf = not start_inf
-                if not start_inf:
-                    sign_history = ''
+            elif key & 0xFF == ord('c'):
+                sign_history = ''
+            elif key & 0xFF == ord('p'):
+                sign_history += ' '
             elif key & 0xFF == ord('q'):
                 break
 
+        if self.recorder:
+            self.recorder.release()
         self.cap.release()
         cv2.destroyAllWindows()
 

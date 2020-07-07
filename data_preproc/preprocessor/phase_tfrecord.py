@@ -16,9 +16,9 @@ class Tfrecord_Generator(Preprocessor):
 
     def start(self):
         self.gen_tfrecord_data(self.num_shards, self.input_dir + "/train_label.pkl", self.input_dir + "/train_data.npy",
-                               self.output_dir, True)
+                               os.path.join(self.output_dir, 'train'), True)
         self.gen_tfrecord_data(self.num_shards, self.input_dir + "/val_label.pkl", self.input_dir + "/val_data.npy",
-                               self.output_dir, True)
+                               os.path.join(self.output_dir, 'test'), True)
 
     def _bytes_feature(self, value):
         """Returns a bytes_list from a string / byte."""
