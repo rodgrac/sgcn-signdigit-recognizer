@@ -7,7 +7,7 @@ labels: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, A, B, C, D, E, F, G, H, I, J,
 num_classes: 36
 hand_thresh: 0.5
 sign_thresh: 0.5
-video_src: 0
+video_src: 2
 
 im_width: 640
 im_height: 480

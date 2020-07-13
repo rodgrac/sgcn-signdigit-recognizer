@@ -1,8 +1,12 @@
-# SGCN Sign Digit Recognizer
+# SGCN Sign Digit / Alphabet Recognizer
 
 Sign digit recognizer built on spatial graph convolutional networks, that can recognize sign digits 
-from 0 to 9 signed over a webcam or static images.
+consisting of alphabets from A to Z and numerical digits from 0 to 9, signed over a webcam or static images.
 
+### v2
+![Demo](demos/demo2.gif)
+
+### v1
 ![Demo](demos/demo.gif)
 
 ## Getting Started
